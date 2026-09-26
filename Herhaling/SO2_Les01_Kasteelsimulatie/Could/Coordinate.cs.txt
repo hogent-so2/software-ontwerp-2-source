@@ -1,0 +1,61 @@
+namespace Kasteelsimulatie.Domein;
+
+// OPTIONELE UITBREIDING: vervang hiermee Domein/Coordinate.cs.
+// sealed voorkomt dat een afgeleide klasse bijkomende gegevens introduceert
+// waarvoor onze gelijkheidsdefinitie niet meer zou volstaan.
+public sealed class Coordinate : IEquatable<Coordinate>
+{
+    public int X { get; init; }
+    public int Y { get; init; }
+
+    public Coordinate(int x, int y)
+    {
+        X = x;
+        Y = y;
+    }
+
+    public bool Equals(Coordinate? andere)
+    {
+        // Gelijkheid gaat hier over de waarden, niet over dezelfde instantie.
+        return andere is not null
+            && X == andere.X
+            && Y == andere.Y;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        // Ook wanneer de aanroeper alleen het type object kent,
+        // willen we dezelfde betekenis van gelijkheid gebruiken.
+        return obj is Coordinate coordinate && Equals(coordinate);
+    }
+
+    public override int GetHashCode()
+    {
+        // Gelijke objecten moeten dezelfde hashcode opleveren.
+        // Daarom gebruiken Equals en GetHashCode dezelfde gegevens: X en Y.
+        return HashCode.Combine(X, Y);
+    }
+
+    public static bool operator ==(Coordinate? links, Coordinate? rechts)
+    {
+        // Dit dekt ook het geval waarin beide referenties null zijn.
+        if (object.ReferenceEquals(links, rechts))
+        {
+            return true;
+        }
+
+        // Gebruik hier "is null", niet "== null". Anders zou deze operator
+        // zichzelf opnieuw aanroepen wanneer hij null probeert te controleren.
+        if (links is null)
+        {
+            return false;
+        }
+
+        return links.Equals(rechts);
+    }
+
+    public static bool operator !=(Coordinate? links, Coordinate? rechts)
+    {
+        return !(links == rechts);
+    }
+}
