@@ -1,7 +1,7 @@
 using Kasteelsimulatie.Domein;
 
 // ================================================================
-// TESTSCENARIO LES 03 - RDD & GRASP
+// TESTSCENARIO LES 02 - RDD & GRASP
 // ================================================================
 // Belangrijk: dit scenario spreekt UITSLUITEND de DomeinController aan.
 // Program.cs maakt dus zelf geen Raster, Kasteel of Bewoner aan.
