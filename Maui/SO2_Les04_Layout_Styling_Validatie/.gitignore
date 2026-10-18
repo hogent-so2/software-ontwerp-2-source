@@ -1,0 +1,10 @@
+# Lokale Visual Studio- en buildbestanden horen niet in de broncode.
+.vs/
+**/bin/
+**/obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+TestResults/
+.DS_Store

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:JokeApp.Models"
+             x:Class="JokeApp.MainPage"
+             Title="Mijn grappen"
+             Shell.NavBarIsVisible="False">
+
+    <!-- De CollectionView staat in een begrensde *-rij, NIET in een ScrollView.
+         De lijst kan daardoor zelf scrollen. Auto reserveert ruimte voor controls. -->
+    <Grid Padding="16" RowSpacing="12"
+          RowDefinitions="Auto,Auto,Auto,*,Auto">
+        
+        <Label Text="Mijn grappen"
+               Style="{StaticResource PageTitleStyle}"
+               SemanticProperties.HeadingLevel="Level1" />
+
+        <!-- Tekst en categorie staan onder elkaar, niet in één te brede balk.
+             De *-kolom neemt de beschikbare breedte van een smal venster in. -->
+        <Grid Grid.Row="1" 
+              RowDefinitions="Auto,Auto,Auto,Auto"
+              RowSpacing="8" 
+              ColumnDefinitions="Auto,*" 
+              ColumnSpacing="12">
+            
+            <Label Text="Zoektekst" VerticalOptions="Center" />
+            
+            <!-- Bewust geen TextChanged of Completed: pas de knop past het filter toe. -->
+            <Entry x:Name="SearchTextEntry"
+                   Grid.Column="1"
+                   Placeholder="Een woord uit de grap"
+                   SemanticProperties.Description="Zoektekst. Pas toe met de knop Zoeken." />
+
+            <Label Grid.Row="1" Text="Categorie" VerticalOptions="Center" />
+            <Picker x:Name="FilterCategoryPicker"
+                    Grid.Row="1" Grid.Column="1"
+                    Title="Alle categorieën"
+                    ItemDisplayBinding="{Binding Label}"
+                    SemanticProperties.Description="Categoriefilter. Pas toe met de knop Zoeken." />
+
+            <Grid Grid.Row="2" Grid.ColumnSpan="2"
+                  ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="Zoeken"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Clicked="Search_Clicked" />
+                <Button Grid.Column="1" Text="Toon alles"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Clicked="ShowAll_Clicked" />
+            </Grid>
+
+            <Grid Grid.Row="3" Grid.ColumnSpan="2"
+                  ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                <CheckBox x:Name="AlphabeticalCheckBox"
+                          CheckedChanged="Alphabetical_CheckedChanged"
+                          SemanticProperties.Description="Sorteer de huidige resultaten alfabetisch op tekst" />
+                <Label Grid.Column="1" Text="Sorteer alfabetisch (A–Z)"
+                       VerticalOptions="Center" />
+            </Grid>
+        </Grid>
+
+        <VerticalStackLayout Grid.Row="2" Spacing="2">
+            <Label x:Name="StatusLabel" FontAttributes="Bold" />
+            <Label x:Name="ResultCategoriesLabel" Style="{StaticResource SmallLabelStyle}" />
+            <!-- Dit label toont de toegepaste keuze; het zoekveld kan intussen
+                 alweer andere, nog niet toegepaste invoer bevatten. -->
+            <Label x:Name="AppliedFiltersLabel"
+                   Style="{StaticResource SmallLabelStyle}"
+                   MaxLines="2" LineBreakMode="TailTruncation" />
+        </VerticalStackLayout>
+
+        <!-- Ook het detailvlak is begrensd en afzonderlijk scrolbaar.
+             Een lange grap of groter lettertype duwt de lijst dus niet weg. -->
+        <Grid Grid.Row="3" RowDefinitions="2*,*" RowSpacing="12">
+            <CollectionView x:Name="JokesCollectionView"
+                            SelectionMode="Single"
+                            SelectionChanged="Joke_SelectionChanged"
+                            VerticalScrollBarVisibility="Default"
+                            SemanticProperties.Description="Gevonden grappen. Selecteer een grap om de volledige tekst te lezen.">
+                
+                <CollectionView.EmptyView>
+                    <!-- Geen DataTemplate nodig: één vaste lege-toestandweergave.
+                         Daarom kunnen we deze labels ook vanuit code-behind bijwerken. -->
+                    <ContentView>
+                        <VerticalStackLayout Padding="16" Spacing="8">
+                            <Label x:Name="EmptyStateTitleLabel" FontAttributes="Bold" />
+                            <Label x:Name="EmptyStateMessageLabel" LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+                    </ContentView>
+                </CollectionView.EmptyView>
+                
+                <CollectionView.ItemTemplate>
+                    <!-- x:DataType laat de XAML-compiler bindings op Joke controleren.
+                         Dit is een item-binding, geen ViewModel of MVVM-architectuur. -->
+                    <DataTemplate x:DataType="models:Joke">
+                        <Border Style="{StaticResource JokeItemStyle}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding Text}"
+                                       MaxLines="2" LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding Category}"
+                                       Style="{StaticResource SmallLabelStyle}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                
+            </CollectionView>
+
+            <Border Grid.Row="1" Style="{StaticResource DetailBorderStyle}">
+                <ScrollView>
+                    <VerticalStackLayout Spacing="8">
+                        <Label x:Name="CurrentJokeCategoryLabel"
+                               Text="Nog geen grap gekozen" FontAttributes="Bold" />
+                        <Label x:Name="CurrentJokeLabel"
+                               Text="Selecteer een grap om de volledige tekst te lezen."
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Border>
+        </Grid>
+
+        <Button x:Name="OpenAddJokeButton"
+                Grid.Row="4" Text="Nieuwe grap"
+                Style="{StaticResource PrimaryButtonStyle}"
+                Clicked="OpenAddJoke_Clicked" />
+    </Grid>
+</ContentPage>
