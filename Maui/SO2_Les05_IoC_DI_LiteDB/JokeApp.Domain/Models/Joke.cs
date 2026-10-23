@@ -1,9 +1,9 @@
-using JokeApp.Validation;
+using JokeApp.Domain.Validation;
 
-namespace JokeApp.Models;
+namespace JokeApp.Domain.Models;
 
 /// <summary>
-/// De gegevens en geldigheidsregels van één grap, los van de gebruikersinterface.
+/// Information Expert: bewaakt de tekstregels van één grap, los van de UI.
 /// </summary>
 public class Joke
 {
@@ -13,6 +13,10 @@ public class Joke
     // van dezelfde tekst toegestaan is; dat kan één Joke zelf niet weten.
     public Guid Id { get; init; }
 
+    // In deze voorbeeldoplossing kiezen we bewust init:
+    // tekst en categorie zijn alleen bij het maken toewijsbaar.
+    // Een pagina kan een opgeslagen grap daardoor niet rechtstreeks wijzigen.
+    // Bij later bewerken kan de service een vervangend model met dezelfde Id maken.
     public string Text
     {
         get => _text;
@@ -23,8 +27,8 @@ public class Joke
             if (!validation.IsValid)
                 throw new ArgumentException(validation.ErrorMessage, nameof(value));
 
-            // Eerst controleren, pas daarna wijzigen. Bij een ongeldige
-            // toekenning behoudt een bestaand object dus zijn vorige geldige tekst.
+            // Ook tijdens de initialisatie moet de tekst geldig zijn.
+            // Na de initialisatie laat init geen nieuwe toekenning toe.
             _text = value.Trim();
         }
     }

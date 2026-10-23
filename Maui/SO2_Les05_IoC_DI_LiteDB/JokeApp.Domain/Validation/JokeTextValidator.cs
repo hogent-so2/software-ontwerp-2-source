@@ -1,7 +1,8 @@
-namespace JokeApp.Validation;
+namespace JokeApp.Domain.Validation;
 
 /// <summary>
-/// De tekstregels staan op één plaats. Zowel AddJokePage als Joke gebruikt ze.
+/// De tekstregels staan op één plaats. De UI gebruikt ze voor feedback,
+/// het model gebruikt ze om zichzelf te beschermen.
 /// Deze klasse kent geen invoervelden, labels, collectie of navigatie.
 /// </summary>
 public static class JokeTextValidator

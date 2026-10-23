@@ -1,4 +1,4 @@
-namespace JokeApp.Validation;
+namespace JokeApp.Domain.Validation;
 
 /// <summary>
 /// Het resultaat van een verwachte controle, zonder afhankelijkheid van MAUI.

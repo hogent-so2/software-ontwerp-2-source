@@ -4,12 +4,24 @@ VisualStudioVersion = 18.0.0.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JokeApp", "JokeApp\JokeApp.csproj", "{6B7D05C8-3C33-4588-91DF-A3F8E1E7A203}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JokeApp.Domain", "JokeApp.Domain\JokeApp.Domain.csproj", "{4DB43BBE-CB18-4A77-9E0C-720D853250C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JokeApp.Persistence", "JokeApp.Persistence\JokeApp.Persistence.csproj", "{ACC8FDA7-2CB6-46D2-873F-EA44F8601A1B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4DB43BBE-CB18-4A77-9E0C-720D853250C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DB43BBE-CB18-4A77-9E0C-720D853250C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4DB43BBE-CB18-4A77-9E0C-720D853250C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DB43BBE-CB18-4A77-9E0C-720D853250C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACC8FDA7-2CB6-46D2-873F-EA44F8601A1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACC8FDA7-2CB6-46D2-873F-EA44F8601A1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACC8FDA7-2CB6-46D2-873F-EA44F8601A1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACC8FDA7-2CB6-46D2-873F-EA44F8601A1B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6B7D05C8-3C33-4588-91DF-A3F8E1E7A203}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6B7D05C8-3C33-4588-91DF-A3F8E1E7A203}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B7D05C8-3C33-4588-91DF-A3F8E1E7A203}.Debug|Any CPU.Deploy.0 = Debug|Any CPU

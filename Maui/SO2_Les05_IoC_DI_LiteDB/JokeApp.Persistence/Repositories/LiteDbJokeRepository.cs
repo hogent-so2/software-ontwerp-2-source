@@ -1,12 +1,15 @@
-using JokeApp.Interfaces;
-using JokeApp.Models;
+using JokeApp.Domain.Interfaces;
+using JokeApp.Domain.Models;
 using LiteDB;
+using System.Text.RegularExpressions;
 
-namespace JokeApp.Repositories;
+namespace JokeApp.Persistence.Repositories;
 
 /// <summary>
 /// Bewaart grappen in één lokaal LiteDB-bestand. Alleen deze klasse kent
 /// de database-API; pagina's en de service kennen uitsluitend het contract.
+/// Pure Fabrication: opslag krijgt een eigen klasse om het model en de
+/// service vrij te houden van databasecode (High Cohesion, Low Coupling).
 /// </summary>
 public sealed class LiteDbJokeRepository : IJokeRepository, IDisposable
 {
@@ -31,10 +34,38 @@ public sealed class LiteDbJokeRepository : IJokeRepository, IDisposable
     {
         // Het resultaat is een momentopname, geen tweede beheerde bibliotheek.
         // LiteDB maakt bij het lezen Joke-objecten van de bewaarde documenten.
-        return _jokes.FindAll().ToList().AsReadOnly();
+        return _jokes.FindAll()
+                     .ToList()
+                     .AsReadOnly();
     }
 
-    public Joke? GetById(Guid id) => _jokes.FindById(id);
+    public Joke? GetById(Guid id) 
+        => _jokes.FindById(id);
+
+    public int Count() => _jokes.Count();
+
+    public IReadOnlyList<Joke> Search(string? searchText, JokeCategory? category, bool sortAlphabetically)
+    {
+        string term = searchText?.Trim() ?? string.Empty;
+        var query = _jokes.Query();
+
+        if (term.Length > 0)
+        {
+            // LiteDB vertaalt Contains naar LIKE, waarin % en _ wildcards zijn.
+            query = query.Where(joke => joke.Text.Contains(term, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (category.HasValue)
+            query = query.Where(joke => joke.Category == category.Value);
+
+        if (sortAlphabetically)
+            query = query.OrderBy(joke => joke.Text);
+
+        // Where en OrderBy bouwen een LiteDB-query, geen LINQ-filter op GetAll().
+        // Pas ToList voert ze uit; alleen de resultaten worden Joke-objecten.
+        return query.ToList()
+                    .AsReadOnly();
+    }
 
     public void Add(Joke joke)
     {
@@ -46,7 +77,8 @@ public sealed class LiteDbJokeRepository : IJokeRepository, IDisposable
         _jokes.Insert(joke);
     }
 
-    public bool Remove(Guid id) => _jokes.Delete(id);
+    public bool Remove(Guid id) 
+        => _jokes.Delete(id);
 
     public void Dispose()
     {

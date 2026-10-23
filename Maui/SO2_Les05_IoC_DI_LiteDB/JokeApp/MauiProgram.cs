@@ -1,6 +1,7 @@
-using JokeApp.Interfaces;
-using JokeApp.Repositories;
-using JokeApp.Services;
+using JokeApp.Domain.Interfaces;
+using JokeApp.Domain.Services;
+using JokeApp.Navigation;
+using JokeApp.Persistence.Repositories;
 
 namespace JokeApp;
 
@@ -9,15 +10,12 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
-        builder.UseMauiApp<App>()
-               .ConfigureFonts(fonts =>
-               {
-                   fonts.AddFont("OpenSans-Regular.ttf", "CollectionRegular");
-                   fonts.AddFont("OpenSans-Semibold.ttf", "CollectionSemibold");
-               });
+        builder.UseMauiApp<App>();
 
-        // Must: LiteDB is de actieve registratie. De factory ontvangt geen
-        // pagina; alleen hier kennen we het platformafhankelijke bestandspad.
+        // Het samenstelpunt (composition root) kiest de concrete implementaties.
+        // Alleen hier in de presentatie kennen we de persistentieklassen;
+        // pagina's gebruiken IJokeService. Domain kent geen MAUI of LiteDB.
+        // Het platformafhankelijke bestandspad wordt van buitenaf doorgegeven.
         builder.Services.AddSingleton<IJokeRepository>(_ =>
         {
             string databasePath = Path.Combine(FileSystem.AppDataDirectory, "jokes.db");
@@ -33,9 +31,15 @@ public static class MauiProgram
         // want de container geeft hun dezelfde singleton repository door.
         builder.Services.AddTransient<IJokeService, JokeService>();
 
-        // Alleen de detailpagina krijgt een route. MainPage staat al in XAML.
-        // Bij navigatie laat Shell de container AddJokePage met IJokeService maken.
-        Routing.RegisterRoute(nameof(AddJokePage), typeof(AddJokePage));
+        // Navigatie hoort bij de presentatie. Ook een concrete klasse zonder
+        // interface kan via constructor injection worden doorgegeven.
+        builder.Services.AddTransient<NavigationService>();
+
+        // Een aanvraag aan de container krijgt een nieuw pagina-object.
+        // De navigatiestack kan een eerder gemaakte pagina wel blijven gebruiken.
+        // Deze registraties bepalen de aanmaak, niet de navigatieroutes.
+        builder.Services.AddTransient<MainPage>();
+        builder.Services.AddTransient<AddJokePage>();
 
         return builder.Build();
     }

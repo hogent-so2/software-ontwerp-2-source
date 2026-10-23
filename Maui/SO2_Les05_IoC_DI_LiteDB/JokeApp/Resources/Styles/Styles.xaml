@@ -85,8 +85,8 @@
                 Value="{AppThemeBinding Light={StaticResource OutlineLight}, Dark={StaticResource OutlineDark}}" />
     </Style>
 
-    <!-- De opdracht noemt DangerButtonStyle. Die ontbrak in de bijlage;
-         deze variant hergebruikt dezelfde basis en uitgeschakelde toestand. -->
+    <!-- Een verwijderactie krijgt een herkenbare stijl en hergebruikt
+         dezelfde basisopmaak en uitgeschakelde toestand. -->
     <Style x:Key="DangerButtonStyle" TargetType="Button"
            BasedOn="{StaticResource BaseButtonStyle}">
         <Setter Property="BackgroundColor" Value="{StaticResource DangerTextLight}" />

@@ -1,7 +1,7 @@
-using JokeApp.Interfaces;
-using JokeApp.Models;
+using JokeApp.Domain.Interfaces;
+using JokeApp.Domain.Models;
 
-namespace JokeApp.Repositories;
+namespace JokeApp.Persistence.Repositories;
 
 /// <summary>
 /// De eerste opslagimplementatie uit de les. De gegevens verdwijnen
@@ -9,8 +9,8 @@ namespace JokeApp.Repositories;
 /// </summary>
 public sealed class InMemoryJokeRepository : IJokeRepository
 {
-    // Dezelfde startgrappen als in de bijlage, maar nu op de juiste plaats:
-    // de repository beheert de collectie, de service bewaakt applicatieregels.
+    // Deze opslagimplementatie begint met enkele voorbeelden. De repository
+    // beheert de collectie; de service bewaakt de applicatieregels.
     private readonly List<Joke> _jokes =
     [
         new Joke(
@@ -25,6 +25,29 @@ public sealed class InMemoryJokeRepository : IJokeRepository
     ];
 
     public IReadOnlyList<Joke> GetAll() => _jokes.AsReadOnly();
+
+    public int Count() => _jokes.Count;
+
+    public IReadOnlyList<Joke> Search(string? searchText, JokeCategory? category, bool sortAlphabetically)
+    {
+        string term = searchText?.Trim() ?? string.Empty;
+        IEnumerable<Joke> results = _jokes;
+
+        // Deze repository bewaart haar gegevens al in een List.
+        // LINQ voert de zoekopdracht daarom in het geheugen uit.
+        if (term.Length > 0)
+            results = results.Where(joke => joke.Text.Contains(term, StringComparison.OrdinalIgnoreCase));
+
+        if (category.HasValue)
+            results = results.Where(joke => joke.Category == category.Value);
+
+        // OrderBy verandert de volgorde van de oorspronkelijke lijst niet.
+        if (sortAlphabetically)
+            results = results.OrderBy(joke => joke.Text, StringComparer.CurrentCultureIgnoreCase);
+
+        return results.ToList()
+                      .AsReadOnly();
+    }
 
     public Joke? GetById(Guid id) =>
         _jokes.SingleOrDefault(joke => joke.Id == id);

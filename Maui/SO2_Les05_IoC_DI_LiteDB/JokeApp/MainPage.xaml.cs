@@ -1,15 +1,15 @@
-using JokeApp.Interfaces;
-using JokeApp.Models;
+using JokeApp.Domain.Interfaces;
+using JokeApp.Domain.Models;
+using JokeApp.Domain.Validation;
+using JokeApp.Navigation;
 using JokeApp.Presentation;
-using JokeApp.Services;
-using JokeApp.Validation;
 
 namespace JokeApp;
 
 public partial class MainPage : ContentPage
 {
-    // Low Coupling: het scherm kent een servicecontract, geen concrete service
-    // of repository. De constructor maakt deze afhankelijkheid zichtbaar.
+    // Low Coupling: voor applicatiebewerkingen kent het scherm IJokeService.
+    // De concrete domeinservice en repositories blijven buiten de pagina.
     private readonly IJokeService _jokeService;
     private readonly NavigationService _navigationService;
 
@@ -22,7 +22,7 @@ public partial class MainPage : ContentPage
     private bool _isOpeningAddPage;
     private bool _isDeleting;
 
-    private bool IsBusy => _isOpeningAddPage || _isDeleting;
+    private bool IsActionInProgress => _isOpeningAddPage || _isDeleting;
 
     private readonly CategoryFilterOption _allCategoriesOption =
         new("Alle categorieën", null);
@@ -63,7 +63,7 @@ public partial class MainPage : ContentPage
 
     private void Search_Clicked(object? sender, EventArgs e)
     {
-        if (IsBusy)
+        if (IsActionInProgress)
             return;
 
         _appliedSearchText = SearchTextEntry.Text?.Trim() ?? string.Empty;
@@ -76,7 +76,7 @@ public partial class MainPage : ContentPage
 
     private void ShowAll_Clicked(object? sender, EventArgs e)
     {
-        if (IsBusy)
+        if (IsActionInProgress)
             return;
 
         // Zowel de zichtbare invoer als de toegepaste filters worden gewist.
@@ -93,7 +93,7 @@ public partial class MainPage : ContentPage
     private void Alphabetical_CheckedChanged(object? sender, CheckedChangedEventArgs e)
     {
         // XAML kan al events veroorzaken terwijl InitializeComponent nog bezig is.
-        if (!_isInitialized || IsBusy)
+        if (!_isInitialized || IsActionInProgress)
             return;
 
         _sortAlphabetically = e.Value;
@@ -110,9 +110,10 @@ public partial class MainPage : ContentPage
         // blijft alleen de eerder toegepaste zoekopdracht bepalend.
         IReadOnlyList<Joke> results = _jokeService.Search(
             _appliedSearchText, _appliedCategory, _sortAlphabetically);
-        int totalCount = _jokeService.GetAll().Count;
+        int totalCount = _jokeService.Count();
 
-        // De nieuwe les vraagt expliciet om selectie en oude details te wissen.
+        // Na vernieuwen kan de geselecteerde grap verdwenen of weggefilterd zijn.
+        // Wis daarom de selectie en de bijbehorende details.
         // Bij LiteDB krijgen we bovendien nieuwe objectinstanties na het lezen.
         JokesCollectionView.SelectedItem = null;
         JokesCollectionView.ItemsSource = results;
@@ -150,13 +151,13 @@ public partial class MainPage : ContentPage
         // Beschikbaarheid is AFGELEID van de selectie en de lopende actie.
         // Bij elke selectiewijziging én vernieuwing berekenen we ze opnieuw.
         DeleteJokeButton.IsEnabled =
-            !IsBusy && JokesCollectionView.SelectedItem is Joke;
-        OpenAddJokeButton.IsEnabled = !IsBusy;
+            !IsActionInProgress && JokesCollectionView.SelectedItem is Joke;
+        OpenAddJokeButton.IsEnabled = !IsActionInProgress;
 
         // Tijdens de bevestiging kan de gebruiker niet ongemerkt een andere
         // selectie of filter toepassen. De handler controleert dit ook zelf.
-        SearchPanel.IsEnabled = !IsBusy;
-        JokesCollectionView.IsEnabled = !IsBusy;
+        SearchPanel.IsEnabled = !IsActionInProgress;
+        JokesCollectionView.IsEnabled = !IsActionInProgress;
     }
 
     private async void DeleteJoke_Clicked(object? sender, EventArgs e)
@@ -169,7 +170,7 @@ public partial class MainPage : ContentPage
     {
         // IsEnabled beschermt de klikroute, niet iedere denkbare aanroep.
         // Controleer de voorwaarden daarom ook in de eigenlijke bewerking.
-        if (IsBusy || JokesCollectionView.SelectedItem is not Joke selectedJoke)
+        if (IsActionInProgress || JokesCollectionView.SelectedItem is not Joke selectedJoke)
             return;
 
         // Bewaar het gekozen object vóór await. We verwijderen straks de id
@@ -189,8 +190,8 @@ public partial class MainPage : ContentPage
             if (!confirmed)
                 return; // Geen service-aanroep, geen wijziging aan lijst of selectie.
 
-            // Must: uitsluitend de service aanspreken. Geen ItemsSource.Remove,
-            // geen cast naar LiteDbJokeRepository en geen databasecode in de pagina.
+            // De service voert de bewerking uit en geeft feedback terug.
+            // Alleen ItemsSource aanpassen zou de opgeslagen grap niet verwijderen.
             ValidationResult result = _jokeService.Remove(selectedJoke.Id);
 
             // Ook bij een intussen verdwenen id verversen we een mogelijk verouderd
@@ -263,7 +264,7 @@ public partial class MainPage : ContentPage
 
     private async void OpenAddJoke_Clicked(object? sender, EventArgs e)
     {
-        if (IsBusy)
+        if (IsActionInProgress)
             return;
 
         _isOpeningAddPage = true;
@@ -271,7 +272,7 @@ public partial class MainPage : ContentPage
 
         try
         {
-            await _navigationService.GoToAddJokePage();
+            await _navigationService.ShowAddJokeAsync();
         }
         finally
         {

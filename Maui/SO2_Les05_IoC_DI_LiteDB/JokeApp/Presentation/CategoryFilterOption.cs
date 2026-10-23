@@ -1,4 +1,4 @@
-using JokeApp.Models;
+using JokeApp.Domain.Models;
 
 namespace JokeApp.Presentation;
 

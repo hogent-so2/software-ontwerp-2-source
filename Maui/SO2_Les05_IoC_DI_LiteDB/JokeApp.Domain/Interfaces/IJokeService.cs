@@ -1,7 +1,7 @@
-using JokeApp.Models;
-using JokeApp.Validation;
+using JokeApp.Domain.Models;
+using JokeApp.Domain.Validation;
 
-namespace JokeApp.Interfaces;
+namespace JokeApp.Domain.Interfaces;
 
 /// <summary>
 /// De bewerkingen die pagina's mogen gebruiken, zonder kennis van de opslag.
@@ -9,10 +9,11 @@ namespace JokeApp.Interfaces;
 public interface IJokeService
 {
     IReadOnlyList<Joke> GetAll();
+    int Count();
     IReadOnlyList<Joke> Search(string? searchText);
 
-    // De werkende categorie- en sorteeruitbreidingen uit de bijlage blijven
-    // beschikbaar. null betekent: geen beperking tot één categorie.
+    // Tekst en categorie kunnen samen filteren. null betekent hier:
+    // geen beperking tot één categorie. Sorteren verandert de opslag niet.
     IReadOnlyList<Joke> Search(
         string? searchText, JokeCategory? category, bool sortAlphabetically);
 

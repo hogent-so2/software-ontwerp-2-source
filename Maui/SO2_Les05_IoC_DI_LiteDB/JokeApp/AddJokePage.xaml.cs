@@ -1,7 +1,7 @@
-using JokeApp.Interfaces;
-using JokeApp.Models;
-using JokeApp.Services;
-using JokeApp.Validation;
+using JokeApp.Domain.Interfaces;
+using JokeApp.Domain.Models;
+using JokeApp.Domain.Validation;
+using JokeApp.Navigation;
 
 namespace JokeApp;
 
@@ -34,8 +34,8 @@ public partial class AddJokePage : ContentPage
 
     private async void AddJoke_Clicked(object? sender, EventArgs e)
     {
-        // async void hoort hier bij de event-handler. De herbruikbare bewerking geeft een Task terug, zodat de aanroeper de navigatie kan afwachten.
-        // async / await zal je later nog zien.
+        // async void hoort bij het event; de bewerking geeft een Task terug.
+        // Neem async/await voorlopig als recept over om navigatie af te wachten.
         await TryAddJokeAsync();
     }
 
@@ -66,8 +66,9 @@ public partial class AddJokePage : ContentPage
             return;
         }
 
-        // Verwachte invoerfouten zijn al behandeld. De setter blijft zichzelf
-        // beschermen voor aanroepers die géén formuliercontrole uitvoeren.
+        // Verwachte invoerfouten zijn al behandeld. Het model controleert de
+        // tekst ook tijdens initialisatie, voor aanroepers zonder formulier.
+        // Creator: de pagina beschikt hier over de gevalideerde invoergegevens.
         var joke = new Joke(text, category);
         var addResult = _jokeService.Add(joke);
 
@@ -86,7 +87,7 @@ public partial class AddJokePage : ContentPage
         AddJokeButton.IsEnabled = false;
         ClearInputButton.IsEnabled = false;
         
-        await _navigationService.GoBack();
+        await _navigationService.GoBackAsync();
 
         // MainPage vernieuwt zichzelf in OnAppearing. Deze pagina hoeft geen
         // labels, lijst of filters van een andere pagina te kennen.
