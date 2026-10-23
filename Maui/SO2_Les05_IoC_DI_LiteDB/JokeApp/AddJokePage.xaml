@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="JokeApp.AddJokePage"
+             Title="Nieuwe grap">
+
+    <!-- De normale Shell-navigatiebalk blijft zichtbaar, inclusief terugknop.
+         Alleen het formulier scrollt hier; er staat geen CollectionView in. -->
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16">
+            <Label Text="Zelf een grap toevoegen"
+                   Style="{StaticResource SectionTitleStyle}"
+                   SemanticProperties.HeadingLevel="Level1" />
+            <Label Text="Grap" />
+            <Label x:Name="TextRulesLabel" Style="{StaticResource SmallLabelStyle}" />
+
+            <!-- Enter maakt een nieuwe regel. Geen Completed-handler of MaxLength:
+                 281 tekens moeten bij Opslaan een melding krijgen, niet stil worden afgekapt. -->
+            <Editor x:Name="JokeTextEditor"
+                    Placeholder="Typ hier een grap"
+                    AutoSize="TextChanges"
+                    TextChanged="JokeText_Changed"
+                    SemanticProperties.Description="Tekst van de nieuwe grap" />
+            <Label x:Name="ValidationLabel"
+                   IsVisible="False"
+                   Style="{StaticResource ValidationLabelStyle}" />
+
+            <Grid RowDefinitions="Auto,Auto"
+                  ColumnDefinitions="Auto,*" RowSpacing="8" ColumnSpacing="12">
+                <Label Text="Categorie" VerticalOptions="Center" />
+                <Picker x:Name="CategoryPicker"
+                        Grid.Column="1"
+                        Title="Kies een categorie"
+                        SelectedIndexChanged="Category_SelectionChanged"
+                        SemanticProperties.Description="Categorie voor de nieuwe grap" />
+                <Label x:Name="SelectedCategoryLabel"
+                       Grid.Row="1" Grid.ColumnSpan="2"
+                       Style="{StaticResource SmallLabelStyle}" />
+            </Grid>
+
+            <!-- Opslaan is beschikbaar bij lege of te korte invoer.
+                 De validatie geeft na de klik uitleg over wat nog moet veranderen. -->
+            <Button x:Name="AddJokeButton"
+                    Text="Grap opslaan"
+                    Style="{StaticResource PrimaryButtonStyle}"
+                    Clicked="AddJoke_Clicked" />
+            <Button x:Name="ClearInputButton"
+                    Text="Invoer wissen"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Clicked="ClearInput_Clicked" />
+            <Label x:Name="FeedbackLabel" Style="{StaticResource SmallLabelStyle}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
