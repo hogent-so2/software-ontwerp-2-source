@@ -91,7 +91,7 @@
                 <CollectionView.ItemTemplate>
                     <!-- x:DataType laat de XAML-compiler bindings op Joke controleren.
                          Dit is een item-binding, geen ViewModel of MVVM-architectuur. -->
-                    <DataTemplate x:DataType="models:Joke">
+                    <DataTemplate>
                         <Border Style="{StaticResource JokeItemStyle}">
                             <VerticalStackLayout Spacing="4">
                                 <Label Text="{Binding Text}"

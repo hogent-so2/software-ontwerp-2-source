@@ -35,12 +35,6 @@ public static class MauiProgram
         // interface kan via constructor injection worden doorgegeven.
         builder.Services.AddTransient<NavigationService>();
 
-        // Een aanvraag aan de container krijgt een nieuw pagina-object.
-        // De navigatiestack kan een eerder gemaakte pagina wel blijven gebruiken.
-        // Deze registraties bepalen de aanmaak, niet de navigatieroutes.
-        builder.Services.AddTransient<MainPage>();
-        builder.Services.AddTransient<AddJokePage>();
-
         return builder.Build();
     }
 }
