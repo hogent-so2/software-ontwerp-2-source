@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:JokeApp.Domain.Models;assembly=JokeApp.Domain"
+             xmlns:vm="clr-namespace:JokeApp.ViewModels"
+             xmlns:presentation="clr-namespace:JokeApp.Presentation"
+             x:Class="JokeApp.MainPage"
+             x:DataType="vm:JokeListViewModel"
+             Title="Mijn grappen"
+             Shell.NavBarIsVisible="False">
+
+    <!-- Dezelfde layout en styles als de bijlage. De communicatie verandert:
+         properties en commands vervangen uitlezen en bijwerken van named controls.
+         x:DataType controleert bindingpaden; BindingContext levert het echte object. -->
+    <Grid Padding="16" RowSpacing="12"
+          RowDefinitions="Auto,Auto,Auto,*,Auto">
+
+        <Label Text="Mijn grappen"
+               Style="{StaticResource PageTitleStyle}"
+               SemanticProperties.HeadingLevel="Level1" />
+
+        <Grid Grid.Row="1" IsEnabled="{Binding IsNotBusy}"
+              RowDefinitions="Auto,Auto,Auto,Auto"
+              RowSpacing="8" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <Label Text="Zoektekst" VerticalOptions="Center" />
+            <!-- TwoWay bewaart de invoer. Alleen SearchCommand past het filter toe. -->
+            <Entry Grid.Column="1" Text="{Binding SearchText, Mode=TwoWay}"
+                   Placeholder="Een woord uit de grap"
+                   SemanticProperties.Description="Zoektekst. Pas toe met de knop Zoeken." />
+
+            <Label Grid.Row="1" Text="Categorie" VerticalOptions="Center" />
+            <Picker Grid.Row="1" Grid.Column="1" Title="Alle categorieën"
+                    ItemsSource="{Binding CategoryFilters}"
+                    SelectedItem="{Binding SelectedCategoryFilter, Mode=TwoWay}"
+                    ItemDisplayBinding="{Binding Label, x:DataType=presentation:CategoryFilterOption}"
+                    SemanticProperties.Description="Categoriefilter. Pas toe met de knop Zoeken." />
+
+            <Grid Grid.Row="2" Grid.ColumnSpan="2"
+                  ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="Zoeken" Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding SearchCommand}" />
+                <Button Grid.Column="1" Text="Toon alles"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding ShowAllCommand}" />
+            </Grid>
+            <Grid Grid.Row="3" Grid.ColumnSpan="2"
+                  ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                <CheckBox IsChecked="{Binding SortAlphabetically, Mode=TwoWay}"
+                          SemanticProperties.Description="Sorteer de huidige resultaten alfabetisch op tekst" />
+                <Label Grid.Column="1" Text="Sorteer alfabetisch (A–Z)"
+                       VerticalOptions="Center" />
+            </Grid>
+        </Grid>
+
+        <VerticalStackLayout Grid.Row="2" Spacing="2">
+            <Label Text="{Binding CountText}" FontAttributes="Bold" />
+            <Label Text="{Binding ResultCategoriesText}" Style="{StaticResource SmallLabelStyle}" />
+            <Label Text="{Binding AppliedFiltersText}" Style="{StaticResource SmallLabelStyle}"
+                   MaxLines="2" LineBreakMode="TailTruncation" />
+        </VerticalStackLayout>
+
+        <!-- De lijst blijft in een begrensde *-rij, niet in een ScrollView.
+             Het detailvlak scrollt afzonderlijk, ook bij langere grappen. -->
+        <Grid Grid.Row="3" RowDefinitions="2*,*" RowSpacing="12">
+            <CollectionView ItemsSource="{Binding Jokes}"
+                            SelectedItem="{Binding SelectedJoke, Mode=TwoWay}"
+                            SelectionMode="Single"
+                            IsEnabled="{Binding IsNotBusy}"
+                            EmptyView="{Binding .}"
+                            VerticalScrollBarVisibility="Default"
+                            SemanticProperties.Description="Gevonden grappen. Selecteer een grap om de volledige tekst te lezen.">
+                <CollectionView.EmptyViewTemplate>
+                    <!-- EmptyView krijgt expliciet het ViewModel als bron.
+                         Deze template leest dus geen properties van een Joke. -->
+                    <DataTemplate x:DataType="vm:JokeListViewModel">
+                        <ContentView>
+                            <VerticalStackLayout Padding="16" Spacing="8">
+                                <Label Text="{Binding EmptyStateTitle}" FontAttributes="Bold" />
+                                <Label Text="{Binding EmptyStateMessage}" LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+                        </ContentView>
+                    </DataTemplate>
+                </CollectionView.EmptyViewTemplate>
+                <CollectionView.ItemTemplate>
+                    <!-- Iedere rij heeft een Joke als context, niet het ViewModel.
+                         Daarom krijgt het itemtemplate een eigen x:DataType. -->
+                    <DataTemplate x:DataType="models:Joke">
+                        <Border Style="{StaticResource JokeItemStyle}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding Text}" MaxLines="2"
+                                       LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding Category}" Style="{StaticResource SmallLabelStyle}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Border Grid.Row="1" Style="{StaticResource DetailBorderStyle}">
+                <ScrollView>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{Binding SelectedJokeCategoryText}" FontAttributes="Bold" />
+                        <Label Text="{Binding SelectedJokeText}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Border>
+        </Grid>
+
+        <VerticalStackLayout Grid.Row="4" Spacing="8">
+            <Label Text="{Binding StatusMessage}" IsVisible="{Binding HasStatusInformation}"
+                   Style="{StaticResource SmallLabelStyle}" LineBreakMode="WordWrap" />
+            <Label Text="{Binding StatusMessage}" IsVisible="{Binding HasStatusError}"
+                   Style="{StaticResource ValidationLabelStyle}" LineBreakMode="WordWrap"
+                   SemanticProperties.Description="{Binding StatusMessage}" />
+            <Button Text="Nieuwe grap" Style="{StaticResource PrimaryButtonStyle}"
+                    Command="{Binding AddJokeCommand}" />
+            <!-- Geen IsEnabled=False meer: CanExecute beheert deze beschikbaarheid. -->
+            <Button Text="Verwijderen" Style="{StaticResource DangerButtonStyle}"
+                    Command="{Binding DeleteJokeCommand}"
+                    SemanticProperties.Description="Verwijder de geselecteerde grap na bevestiging" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

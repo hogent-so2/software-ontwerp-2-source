@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:JokeApp.ViewModels"
+             x:Class="JokeApp.AddJokePage"
+             x:DataType="vm:AddJokeViewModel"
+             Title="Nieuwe grap">
+
+    <!-- De Shell-terugknop blijft beschikbaar. Teruggaan zonder Opslaan
+         bewaart niets: de tekst is formulierinvoer, geen bestaand Joke-object. -->
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="16">
+            <Label Text="Zelf een grap toevoegen"
+                   Style="{StaticResource SectionTitleStyle}"
+                   SemanticProperties.HeadingLevel="Level1" />
+            <Label Text="Grap" />
+            <Label Text="{Binding TextRulesText}" Style="{StaticResource SmallLabelStyle}" />
+
+            <!-- Geen TextChanged-handler of MaxLength. De binding bewaart de
+                 ruwe invoer; SaveCommand valideert pas wanneer de gebruiker opslaat. -->
+            <Editor Text="{Binding Text, Mode=TwoWay}"
+                    IsEnabled="{Binding IsFormEnabled}"
+                    Placeholder="Typ hier een grap"
+                    AutoSize="TextChanges"
+                    SemanticProperties.Description="Tekst van de nieuwe grap" />
+            <Label Text="{Binding CharacterCountText}" Style="{StaticResource SmallLabelStyle}" />
+            <Label Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}"
+                   Style="{StaticResource ValidationLabelStyle}"
+                   SemanticProperties.Description="{Binding ErrorMessage}" />
+
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*"
+                  RowSpacing="8" ColumnSpacing="12">
+                <Label Text="Categorie" VerticalOptions="Center" />
+                <Picker Grid.Column="1" Title="Kies een categorie"
+                        ItemsSource="{Binding Categories}"
+                        SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                        IsEnabled="{Binding IsFormEnabled}"
+                        SemanticProperties.Description="Categorie voor de nieuwe grap" />
+                <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding SelectedCategoryText}"
+                       Style="{StaticResource SmallLabelStyle}" />
+            </Grid>
+
+            <!-- CanExecute kijkt alleen naar een lopende/al geslaagde opslag,
+                 NIET naar de tekstlengte. Ongeldige invoer krijgt feedback na de klik. -->
+            <Button Text="Grap opslaan" Style="{StaticResource PrimaryButtonStyle}"
+                    Command="{Binding SaveCommand}" />
+            <Button Text="Invoer wissen" Style="{StaticResource SecondaryButtonStyle}"
+                    Command="{Binding ClearInputCommand}" />
+            <Label Text="{Binding FeedbackMessage}" Style="{StaticResource SmallLabelStyle}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
