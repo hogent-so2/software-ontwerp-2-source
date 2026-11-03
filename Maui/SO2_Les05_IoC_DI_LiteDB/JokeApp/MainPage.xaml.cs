@@ -19,10 +19,7 @@ public partial class MainPage : ContentPage
     private JokeCategory? _appliedCategory;
     private bool _sortAlphabetically;
     private bool _isInitialized;
-    private bool _isOpeningAddPage;
-    private bool _isDeleting;
-
-    private bool IsActionInProgress => _isOpeningAddPage || _isDeleting;
+    private bool _isBusy;
 
     private readonly CategoryFilterOption _allCategoriesOption =
         new("Alle categorieën", null);
@@ -63,7 +60,7 @@ public partial class MainPage : ContentPage
 
     private void Search_Clicked(object? sender, EventArgs e)
     {
-        if (IsActionInProgress)
+        if (_isBusy)
             return;
 
         _appliedSearchText = SearchTextEntry.Text?.Trim() ?? string.Empty;
@@ -76,7 +73,7 @@ public partial class MainPage : ContentPage
 
     private void ShowAll_Clicked(object? sender, EventArgs e)
     {
-        if (IsActionInProgress)
+        if (_isBusy)
             return;
 
         // Zowel de zichtbare invoer als de toegepaste filters worden gewist.
@@ -93,7 +90,7 @@ public partial class MainPage : ContentPage
     private void Alphabetical_CheckedChanged(object? sender, CheckedChangedEventArgs e)
     {
         // XAML kan al events veroorzaken terwijl InitializeComponent nog bezig is.
-        if (!_isInitialized || IsActionInProgress)
+        if (!_isInitialized || _isBusy)
             return;
 
         _sortAlphabetically = e.Value;
@@ -151,13 +148,13 @@ public partial class MainPage : ContentPage
         // Beschikbaarheid is AFGELEID van de selectie en de lopende actie.
         // Bij elke selectiewijziging én vernieuwing berekenen we ze opnieuw.
         DeleteJokeButton.IsEnabled =
-            !IsActionInProgress && JokesCollectionView.SelectedItem is Joke;
-        OpenAddJokeButton.IsEnabled = !IsActionInProgress;
+            !_isBusy && JokesCollectionView.SelectedItem is Joke;
+        OpenAddJokeButton.IsEnabled = !_isBusy;
 
         // Tijdens de bevestiging kan de gebruiker niet ongemerkt een andere
         // selectie of filter toepassen. De handler controleert dit ook zelf.
-        SearchPanel.IsEnabled = !IsActionInProgress;
-        JokesCollectionView.IsEnabled = !IsActionInProgress;
+        SearchPanel.IsEnabled = !_isBusy;
+        JokesCollectionView.IsEnabled = !_isBusy;
     }
 
     private async void DeleteJoke_Clicked(object? sender, EventArgs e)
@@ -170,12 +167,12 @@ public partial class MainPage : ContentPage
     {
         // IsEnabled beschermt de klikroute, niet iedere denkbare aanroep.
         // Controleer de voorwaarden daarom ook in de eigenlijke bewerking.
-        if (IsActionInProgress || JokesCollectionView.SelectedItem is not Joke selectedJoke)
+        if (_isBusy || JokesCollectionView.SelectedItem is not Joke selectedJoke)
             return;
 
         // Bewaar het gekozen object vóór await. We verwijderen straks de id
         // waarover deze bevestiging ging, niet een eventueel latere selectie.
-        _isDeleting = true;
+        _isBusy = true;
         ClearActionFeedback();
         UpdateActionAvailability();
 
@@ -203,7 +200,7 @@ public partial class MainPage : ContentPage
         {
             // Ook bij annuleren herstellen we de bediening. We gebruiken hier
             // geen catch(Exception) die technische fouten zou verbergen.
-            _isDeleting = false;
+            _isBusy = false;
             UpdateActionAvailability();
         }
     }
@@ -264,10 +261,10 @@ public partial class MainPage : ContentPage
 
     private async void OpenAddJoke_Clicked(object? sender, EventArgs e)
     {
-        if (IsActionInProgress)
+        if (_isBusy)
             return;
 
-        _isOpeningAddPage = true;
+        _isBusy = true;
         UpdateActionAvailability();
 
         try
@@ -276,7 +273,7 @@ public partial class MainPage : ContentPage
         }
         finally
         {
-            _isOpeningAddPage = false;
+            _isBusy = false;
             UpdateActionAvailability();
         }
     }

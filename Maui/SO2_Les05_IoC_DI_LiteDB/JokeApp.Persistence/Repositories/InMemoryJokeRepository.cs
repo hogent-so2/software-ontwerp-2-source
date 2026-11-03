@@ -11,8 +11,8 @@ public sealed class InMemoryJokeRepository : IJokeRepository
 {
     // Deze opslagimplementatie begint met enkele voorbeelden. De repository
     // beheert de collectie; de service bewaakt de applicatieregels.
-    private readonly List<Joke> _jokes =
-    [
+    private readonly List<Joke> _jokes = new List<Joke>
+    {
         new Joke(
             "Waarom was de programmeur zo rustig? Hij had alles onder Ctrl.",
             JokeCategory.Programming),
@@ -22,7 +22,7 @@ public sealed class InMemoryJokeRepository : IJokeRepository
         new Joke(
             "Waarom nam het boek vakantie? Het was toe aan een nieuw hoofdstuk.",
             JokeCategory.Other)
-    ];
+    };
 
     public IReadOnlyList<Joke> GetAll() => _jokes.AsReadOnly();
 
