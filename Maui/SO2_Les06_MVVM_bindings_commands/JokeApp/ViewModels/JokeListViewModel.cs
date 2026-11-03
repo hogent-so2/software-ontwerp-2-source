@@ -144,11 +144,7 @@ public class JokeListViewModel : ViewModelBase
     public string StatusMessage
     {
         get => _statusMessage;
-        private set
-        {
-            if (SetProperty(ref _statusMessage, value))
-                NotifyStatusVisibility();
-        }
+        private set => SetProperty(ref _statusMessage, value);
     }
 
     // Het ViewModel biedt betekenis aan, geen kleuren of specifieke labels.
@@ -260,9 +256,7 @@ public class JokeListViewModel : ViewModelBase
         Reload(); // De sorteervoorkeur blijft behouden, net als in de bijlage.
     }
 
-    // Internal laat de consolecontroles dezelfde Task-bewerking afwachten.
-    // De View zelf gebruikt uitsluitend het gekoppelde ICommand.
-    internal async Task OpenAddJokeAsync()
+    private async Task OpenAddJokeAsync()
     {
         if (IsBusy)
             return;
@@ -278,9 +272,7 @@ public class JokeListViewModel : ViewModelBase
         }
     }
 
-    // Internal laat de consolecontroles dezelfde Task-bewerking afwachten.
-    // De View zelf gebruikt uitsluitend het gekoppelde ICommand.
-    internal async Task DeleteSelectedJokeAsync()
+    private async Task DeleteSelectedJokeAsync()
     {
         // CanExecute stuurt de knop. De guard beschermt ook een rechtstreekse
         // command-aanroep en voorkomt twee gelijktijdige bevestigingsvragen.
@@ -321,13 +313,9 @@ public class JokeListViewModel : ViewModelBase
 
     private void SetStatus(string message, bool isError)
     {
-        bool kindChanged = _statusIsError != isError;
         _statusIsError = isError;
-
-        if (StatusMessage != message)
-            StatusMessage = message; // Meldt ook de twee zichtbaarheid-properties.
-        else if (kindChanged)
-            NotifyStatusVisibility();
+        StatusMessage = message;
+        NotifyStatusVisibility();
     }
 
     private void ClearStatus() => SetStatus(string.Empty, isError: false);

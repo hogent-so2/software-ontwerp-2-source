@@ -5,7 +5,7 @@
        x:Class="JokeApp.AppShell"
        Title="JokeApp"
        FlyoutBehavior="Disabled">
-    <!-- Shell maakt MainPage via de DI-container. Het formulier openen we via zijn route. -->
+    <!-- Shell maakt MainPage met geïnjecteerde dependencies, zonder paginaregistratie in DI. -->
     <ShellContent Title="JokeApp"
                   Route="MainPage"
                   ContentTemplate="{DataTemplate local:MainPage}" />

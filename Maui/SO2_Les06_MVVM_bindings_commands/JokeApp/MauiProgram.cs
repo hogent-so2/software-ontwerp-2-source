@@ -36,8 +36,9 @@ public static class MauiProgram
         // nieuw ViewModel, zonder oude invoer of foutmeldingen van een vorige keer.
         builder.Services.AddTransient<JokeListViewModel>();
         builder.Services.AddTransient<AddJokeViewModel>();
-        builder.Services.AddTransient<MainPage>();
-        builder.Services.AddTransient<AddJokePage>();
+
+        // Shell maakt de pagina's en geeft hun geregistreerde dependencies mee.
+        // Pagina's zelf registreren we niet in de DI-container.
 
         // De navigatiestack kan een reeds gemaakte pagina bewaren. Teruggaan
         // maakt dus niet noodzakelijk een nieuw MainPage/ViewModel-object.

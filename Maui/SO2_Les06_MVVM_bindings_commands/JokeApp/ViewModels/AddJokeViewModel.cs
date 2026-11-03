@@ -118,9 +118,7 @@ public class AddJokeViewModel : ViewModelBase
         _clearInputCommand = new Command(ClearInput, () => IsFormEnabled);
     }
 
-    // Internal laat de consolecontroles dezelfde Task-bewerking afwachten.
-    // De View zelf gebruikt uitsluitend het gekoppelde ICommand.
-    internal async Task SaveAsync()
+    private async Task SaveAsync()
     {
         if (!IsFormEnabled)
             return;
