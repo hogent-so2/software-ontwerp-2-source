@@ -37,8 +37,10 @@ public static class MauiProgram
         builder.Services.AddTransient<JokeListViewModel>();
         builder.Services.AddTransient<AddJokeViewModel>();
 
-        // Shell maakt de pagina's en geeft hun geregistreerde dependencies mee.
-        // Pagina's zelf registreren we niet in de DI-container.
+        // De route koppelt een bestemming aan een pagina. Shell maakt de pagina
+        // en ontvangt haar dependencies uit de DI-container.
+        // MainPage staat al in AppShell.xaml en krijgt geen extra detailroute.
+        Routing.RegisterRoute(nameof(AddJokePage), typeof(AddJokePage));
 
         // De navigatiestack kan een reeds gemaakte pagina bewaren. Teruggaan
         // maakt dus niet noodzakelijk een nieuw MainPage/ViewModel-object.
