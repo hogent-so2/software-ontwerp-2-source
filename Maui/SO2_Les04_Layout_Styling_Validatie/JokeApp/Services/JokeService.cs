@@ -30,7 +30,7 @@ public class JokeService
     public IReadOnlyList<Joke> GetAll()
     {
         // Dit is een read-only weergave, geen kopie van de collectie.
-        // De objecten zelf blijven wijzigbaar via hun publieke properties.
+        // De Joke-objecten hebben init-properties en zijn na aanmaken niet wijzigbaar.
         return _jokes.AsReadOnly();
     }
 

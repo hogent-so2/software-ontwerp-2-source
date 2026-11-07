@@ -30,13 +30,13 @@ public class InMemoryJokeRepository : IJokeRepository
 
     public IReadOnlyList<Joke> Search(string? searchText, JokeCategory? category, bool sortAlphabetically)
     {
-        string term = searchText?.Trim() ?? string.Empty;
+        string term = searchText?.Trim().ToUpper() ?? string.Empty;
         IEnumerable<Joke> results = _jokes;
 
         // Deze repository bewaart haar gegevens al in een List.
         // LINQ voert de zoekopdracht daarom in het geheugen uit.
         if (term.Length > 0)
-            results = results.Where(joke => joke.Text.Contains(term, StringComparison.OrdinalIgnoreCase));
+            results = results.Where(joke => joke.Text.ToUpper().IndexOf(term) >= 0);
 
         if (category.HasValue)
             results = results.Where(joke => joke.Category == category.Value);

@@ -1,7 +1,6 @@
 using JokeApp.Domain.Interfaces;
 using JokeApp.Domain.Models;
 using LiteDB;
-using System.Text.RegularExpressions;
 
 namespace JokeApp.Persistence.Repositories;
 
@@ -46,14 +45,11 @@ public sealed class LiteDbJokeRepository : IJokeRepository, IDisposable
 
     public IReadOnlyList<Joke> Search(string? searchText, JokeCategory? category, bool sortAlphabetically)
     {
-        string term = searchText?.Trim() ?? string.Empty;
+        string term = searchText?.Trim().ToUpper() ?? string.Empty;
         var query = _jokes.Query();
 
         if (term.Length > 0)
-        {
-            // LiteDB vertaalt Contains naar LIKE, waarin % en _ wildcards zijn.
-            query = query.Where(joke => joke.Text.Contains(term, StringComparison.OrdinalIgnoreCase));
-        }
+            query = query.Where(joke => joke.Text.ToUpper().IndexOf(term) >= 0);
 
         if (category.HasValue)
             query = query.Where(joke => joke.Category == category.Value);

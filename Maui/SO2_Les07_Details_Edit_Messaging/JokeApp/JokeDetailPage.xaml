@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:JokeApp.ViewModels"
+             x:Class="JokeApp.JokeDetailPage"
+             x:DataType="vm:JokeDetailViewModel"
+             Title="Grap bewerken">
+    <!-- Should: het volledige formulier kan scrollen. Knoppen staan onder
+         elkaar zodat ze ook in een smal venster volledig leesbaar blijven. -->
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="12" MaximumWidthRequest="720"
+                             HorizontalOptions="Fill">
+            <Label Text="Grap bewerken" Style="{StaticResource PageTitleStyle}" />
+            <Label Text="Je wijzigingen worden pas bewaard wanneer je op Opslaan klikt."
+                   Style="{StaticResource SmallLabelStyle}" />
+            <Label Text="Grap" FontAttributes="Bold" />
+            <Editor Text="{Binding Text, Mode=TwoWay}"
+                    IsEnabled="{Binding IsFormEnabled}"
+                    AutoSize="TextChanges" MinimumHeightRequest="120"
+                    Placeholder="Typ je grap"
+                    SemanticProperties.Description="Tekst van de te bewerken grap" />
+            <!-- Geen MaxLength en geen live validatie: een teller is informatie. -->
+            <Label Text="{Binding CharacterCountText}" Style="{StaticResource SmallLabelStyle}" />
+            <Label Text="{Binding TextRulesText}" Style="{StaticResource SmallLabelStyle}" />
+            <Label Text="Categorie" FontAttributes="Bold" />
+            <Picker ItemsSource="{Binding Categories}"
+                    SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                    IsEnabled="{Binding IsFormEnabled}"
+                    Title="Kies een categorie" />
+            <Label Text="Niet-opgeslagen wijzigingen"
+                   IsVisible="{Binding HasChanges}" FontAttributes="Bold"
+                   SemanticProperties.Description="Niet-opgeslagen wijzigingen" />
+            <Label Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}"
+                   Style="{StaticResource ValidationLabelStyle}"
+                   SemanticProperties.Description="{Binding ErrorMessage}" />
+            <Button Text="Opslaan" Command="{Binding SaveCommand}"
+                    Style="{StaticResource PrimaryButtonStyle}" />
+            <Button Text="Herstellen" Command="{Binding RestoreCommand}"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    SemanticProperties.Description="Herstel de oorspronkelijke tekst en categorie zonder op te slaan" />
+            <Button Text="Annuleren" Command="{Binding CancelCommand}"
+                    Style="{StaticResource SecondaryButtonStyle}" />
+            <Button Text="Verwijderen" Command="{Binding DeleteCommand}"
+                    Style="{StaticResource DangerButtonStyle}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

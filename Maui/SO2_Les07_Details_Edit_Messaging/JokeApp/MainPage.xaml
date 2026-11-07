@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:JokeApp.ViewModels"
+             xmlns:presentation="clr-namespace:JokeApp.Presentation"
+             x:Class="JokeApp.MainPage"
+             x:DataType="vm:JokeListViewModel"
+             Title="Mijn grappen">
+    <Grid Padding="16" RowSpacing="8" RowDefinitions="Auto,Auto,*,Auto">
+        <Label Text="Mijn grappenbibliotheek" Style="{StaticResource PageTitleStyle}" />
+
+        <!-- De filters/statistieken hebben een begrensd, afzonderlijk scrollvlak.
+             Zo blijft de CollectionView in haar eigen *-rij zichtbaar op een telefoon.
+             De lijst zelf wordt NIET in deze ScrollView geplaatst. -->
+        <ScrollView Grid.Row="1" MaximumHeightRequest="240">
+            <VerticalStackLayout Spacing="8">
+                <VerticalStackLayout Spacing="6" IsEnabled="{Binding IsNotBusy}">
+                    <Entry Text="{Binding SearchText, Mode=TwoWay}"
+                           Placeholder="Zoek in de tekst" ReturnType="Search"
+                           ReturnCommand="{Binding SearchCommand}"
+                           SemanticProperties.Description="Zoektekst. Pas toe met Zoeken." />
+                    <Picker ItemsSource="{Binding CategoryFilters}" Title="Filter op categorie"
+                            SelectedItem="{Binding SelectedCategoryFilter, Mode=TwoWay}"
+                            ItemDisplayBinding="{Binding Label, x:DataType=presentation:CategoryFilterOption}" />
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                        <Button Text="Zoeken" Command="{Binding SearchCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" />
+                        <Button Grid.Column="1" Text="Toon alles" Command="{Binding ShowAllCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}" />
+                    </Grid>
+                    <HorizontalStackLayout Spacing="8">
+                        <CheckBox IsChecked="{Binding SortAlphabetically, Mode=TwoWay}" />
+                        <Label Text="Sorteer alfabetisch (A–Z)" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+                <Label Text="{Binding CountText}" FontAttributes="Bold" />
+                <Label Text="{Binding ResultCategoriesText}" Style="{StaticResource SmallLabelStyle}" />
+                <Label Text="{Binding AppliedFiltersText}" Style="{StaticResource SmallLabelStyle}"
+                       LineBreakMode="WordWrap" />
+
+                <!-- Deze subtree krijgt een EIGEN BindingContext in MainPage.
+                     x:DataType beschrijft het type; het maakt geen ViewModel. -->
+                <Border x:Name="statisticsPanel" x:DataType="vm:JokeStatisticsViewModel"
+                        Style="{StaticResource DetailBorderStyle}">
+                    <VerticalStackLayout Spacing="3">
+                        <Label Text="Volledige bibliotheek" FontAttributes="Bold" />
+                        <Label Text="{Binding ProgrammingCount, StringFormat='Programming: {0}'}"
+                               Style="{StaticResource SmallLabelStyle}" />
+                        <Label Text="{Binding DadJokeCount, StringFormat='DadJoke: {0}'}"
+                               Style="{StaticResource SmallLabelStyle}" />
+                        <Label Text="{Binding OtherCount, StringFormat='Other: {0}'}"
+                               Style="{StaticResource SmallLabelStyle}" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Jokes}"
+                        SelectedItem="{Binding SelectedJoke, Mode=TwoWay}"
+                        SelectionMode="Single" EmptyView="{Binding .}"
+                        IsEnabled="{Binding IsNotBusy}"
+                        VerticalScrollBarVisibility="Default"
+                        SemanticProperties.Description="Selecteer een grap en kies Details om ze te openen.">
+            <CollectionView.EmptyViewTemplate>
+                <DataTemplate x:DataType="vm:JokeListViewModel">
+                    <ContentView>
+                        <VerticalStackLayout Padding="12" Spacing="6">
+                            <Label Text="{Binding EmptyStateTitle}" FontAttributes="Bold" />
+                            <Label Text="{Binding EmptyStateMessage}" LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+                    </ContentView>
+                </DataTemplate>
+            </CollectionView.EmptyViewTemplate>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:JokeItemViewModel">
+                    <Border Style="{StaticResource JokeItemStyle}">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="{Binding Text}" MaxLines="2" LineBreakMode="TailTruncation" />
+                            <Label Text="{Binding Category}" Style="{StaticResource SmallLabelStyle}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <VerticalStackLayout Grid.Row="3" Spacing="6">
+            <Label Text="{Binding SelectedJokeCategoryText}" Style="{StaticResource SmallLabelStyle}" />
+            <Label Text="{Binding StatusMessage}" IsVisible="{Binding HasStatusInformation}"
+                   Style="{StaticResource SmallLabelStyle}" LineBreakMode="WordWrap" />
+            <Label Text="{Binding StatusMessage}" IsVisible="{Binding HasStatusError}"
+                   Style="{StaticResource ValidationLabelStyle}" LineBreakMode="WordWrap"
+                   SemanticProperties.Description="{Binding StatusMessage}" />
+            <Button Text="Details" Command="{Binding OpenDetailsCommand}"
+                    Style="{StaticResource SecondaryButtonStyle}" />
+            <Button Text="Nieuwe grap" Command="{Binding AddJokeCommand}"
+                    Style="{StaticResource PrimaryButtonStyle}" />
+            <Button Text="Verwijderen" Command="{Binding DeleteJokeCommand}"
+                    Style="{StaticResource DangerButtonStyle}" />
+        </VerticalStackLayout>
+    </Grid>
+</ContentPage>

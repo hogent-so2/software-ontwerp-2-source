@@ -1,7 +1,6 @@
 using JokeApp.Domain.Interfaces;
 using JokeApp.Domain.Models;
 using LiteDB;
-using System.Text.RegularExpressions;
 
 namespace JokeApp.Persistence.Repositories;
 
@@ -46,20 +45,11 @@ public class LiteDbJokeRepository : IJokeRepository, IDisposable
 
     public IReadOnlyList<Joke> Search(string? searchText, JokeCategory? category, bool sortAlphabetically)
     {
-        string term = searchText?.Trim() ?? string.Empty;
+        string term = searchText?.Trim().ToUpper() ?? string.Empty;
         var query = _jokes.Query();
 
         if (term.Length > 0)
-        {
-            // Een LiteDB-expressie is geen gewone LINQ-to-Objects-aanroep.
-            // Contains wordt vertaald naar LIKE; % en _ zouden dan wildcards zijn.
-            // Escape maakt ALLE invoer letterlijk. UPPER en ToUpperInvariant
-            // zorgen voor hoofdletterongevoelig zoeken zonder cultureel regexgedrag.
-            // @0 is een parameter: gebruikersinvoer wordt nooit querycode.
-            string pattern = Regex.Escape(term.ToUpperInvariant());
-            query = query.Where(BsonExpression.Create(
-                "IS_MATCH(UPPER($.Text), @0)", pattern));
-        }
+            query = query.Where(joke => joke.Text.ToUpper().IndexOf(term) >= 0);
 
         if (category.HasValue)
             query = query.Where(joke => joke.Category == category.Value);
